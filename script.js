@@ -8,6 +8,8 @@ const canvas = document.querySelector("canvas"),
   saveImg = document.querySelector(".save-img"),
   ctx = canvas.getContext("2d");
 
+fillColor.disabled = true;
+
 // Global variables with default value
 let prevMouseX,
   prevMouseY,
@@ -36,7 +38,6 @@ const drawing = (e) => {
   if (selectedTool === "brush" || selectedTool === "eraser") {
     // If selected tool is eraser then set strokeStyle to white
     // To paint white color on to the existing canvas content else set the stroke color to selected color
-
     ctx.strokeStyle = selectedTool === "eraser" ? "#fff" : selectedColor;
     ctx.lineTo(e.offsetX, e.offsetY); // Creating line according to the mouse pointer
     ctx.stroke(); // Drawing/Filling line with color
@@ -89,6 +90,12 @@ toolBtns.forEach((btn) => {
     document.querySelector(".options .active").classList.remove("active");
     btn.classList.add("active");
     selectedTool = btn.id;
+    if (selectedTool === "brush" || selectedTool === "eraser") {
+      fillColor.checked = false;
+      fillColor.disabled = true;
+    } else {
+      fillColor.disabled = false;
+    }
   });
 });
 
