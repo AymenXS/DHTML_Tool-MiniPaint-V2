@@ -17,7 +17,6 @@ let prevMouseX,
   brushWidth = 5,
   selectedColor = "#000";
 
-
 const startDraw = (e) => {
   isDrawing = true;
   prevMouseX = e.offsetX; // Passing current mouseX position as prevMouseX value
@@ -28,6 +27,26 @@ const startDraw = (e) => {
   ctx.fillStyle = selectedColor; // Passing selectedColor as fill style
   // Copying canvas data & passing as snapshot value.. this avoids dragging the image
   snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+};
+
+const drawing = (e) => {
+  if (!isDrawing) return; // If isDrawing is false return from here
+  ctx.putImageData(snapshot, 0, 0); // Adding copied canvas data on to this canvas
+
+  if (selectedTool === "brush" || selectedTool === "eraser") {
+    // If selected tool is eraser then set strokeStyle to white
+    // To paint white color on to the existing canvas content else set the stroke color to selected color
+
+    ctx.strokeStyle = selectedTool === "eraser" ? "#fff" : selectedColor;
+    ctx.lineTo(e.offsetX, e.offsetY); // Creating line according to the mouse pointer
+    ctx.stroke(); // Drawing/Filling line with color
+  } else if (selectedTool === "rectangle") {
+    drawRect(e);
+  } else if (selectedTool === "circle") {
+    drawCircle(e);
+  } else {
+    drawTriangle(e);
+  }
 };
 
 const drawRect = (e) => {
@@ -61,25 +80,6 @@ const setCanvasBackground = () => {
   ctx.fillStyle = "#fff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = selectedColor; // setting fillStyle back to the selectedColor, it'll be the brush color
-};
-
-const drawing = (e) => {
-  if (!isDrawing) return; // If isDrawing is false return from here
-  ctx.putImageData(snapshot, 0, 0); // Adding copied canvas data on to this canvas
-
-  if (selectedTool === "brush" || selectedTool === "eraser") {
-    // If selected tool is eraser then set strokeStyle to white
-    // To paint white color on to the existing canvas content else set the stroke color to selected color
-    ctx.strokeStyle = selectedTool === "eraser" ? "#fff" : selectedColor;
-    ctx.lineTo(e.offsetX, e.offsetY); // Creating line according to the mouse pointer
-    ctx.stroke(); // Drawing/Filling line with color
-  } else if (selectedTool === "rectangle") {
-    drawRect(e);
-  } else if (selectedTool === "circle") {
-    drawCircle(e);
-  } else {
-    drawTriangle(e);
-  }
 };
 
 toolBtns.forEach((btn) => {
