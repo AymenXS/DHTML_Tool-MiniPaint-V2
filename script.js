@@ -17,19 +17,18 @@ let prevMouseX,
   brushWidth = 5,
   selectedColor = "#000";
 
-const setCanvasBackground = () => {
-  // Setting whole canvas background to white, so the downloaded img background will be white
-  ctx.fillStyle = "#fff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = selectedColor; // setting fillstyle back to the selectedColor, it'll be the brush color
-};
 
-window.addEventListener("load", () => {
-  // Setting canvas width/height.. offsetwidth/height returns viewable width/height of an element
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  setCanvasBackground();
-});
+const startDraw = (e) => {
+  isDrawing = true;
+  prevMouseX = e.offsetX; // Passing current mouseX position as prevMouseX value
+  prevMouseY = e.offsetY; // Passing current mouseY position as prevMouseY value
+  ctx.beginPath(); // Creating new path to draw
+  ctx.lineWidth = brushWidth; // Passing brushSize as line width
+  ctx.strokeStyle = selectedColor; // Passing selectedColor as stroke style
+  ctx.fillStyle = selectedColor; // Passing selectedColor as fill style
+  // Copying canvas data & passing as snapshot value.. this avoids dragging the image
+  snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+};
 
 const drawRect = (e) => {
   // If fillColor isn't checked draw a rect with border else draw rect with background
@@ -57,16 +56,11 @@ const drawTriangle = (e) => {
   fillColor.checked ? ctx.fill() : ctx.stroke(); // If fillColor is checked fill triangle else draw border
 };
 
-const startDraw = (e) => {
-  isDrawing = true;
-  prevMouseX = e.offsetX; // Passing current mouseX position as prevMouseX value
-  prevMouseY = e.offsetY; // Passing current mouseY position as prevMouseY value
-  ctx.beginPath(); // Creating new path to draw
-  ctx.lineWidth = brushWidth; // Passing brushSize as line width
-  ctx.strokeStyle = selectedColor; // Passing selectedColor as stroke style
-  ctx.fillStyle = selectedColor; // Passing selectedColor as fill style
-  // Copying canvas data & passing as snapshot value.. this avoids dragging the image
-  snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const setCanvasBackground = () => {
+  // Setting whole canvas background to white, so the downloaded img background will be white
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = selectedColor; // setting fillStyle back to the selectedColor, it'll be the brush color
 };
 
 const drawing = (e) => {
@@ -98,8 +92,6 @@ toolBtns.forEach((btn) => {
   });
 });
 
-sizeSlider.addEventListener("change", () => (brushWidth = sizeSlider.value)); // Passing slider value as brushSize
-
 colorBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     // Adding click event to all color button
@@ -110,6 +102,18 @@ colorBtns.forEach((btn) => {
     selectedColor = window.getComputedStyle(btn).getPropertyValue("background-color");
   });
 });
+
+window.addEventListener("load", () => {
+  // Fixing canvas' width/height.. offsetWidth/Height returns viewable Width/Height of an element
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  setCanvasBackground();
+});
+
+canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mousemove", drawing);
+canvas.addEventListener("mouseup", () => (isDrawing = false));
+sizeSlider.addEventListener("change", () => (brushWidth = sizeSlider.value)); // Passing slider value as brushSize
 
 colorPicker.addEventListener("change", () => {
   // Passing picked color value from color picker to last color btn background
@@ -128,7 +132,3 @@ saveImg.addEventListener("click", () => {
   link.href = canvas.toDataURL(); // Passing canvasData as link href value
   link.click(); // Clicking link to download image
 });
-
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mousemove", drawing);
-canvas.addEventListener("mouseup", () => (isDrawing = false));
